@@ -9,7 +9,15 @@ class CustomersController < ApplicationController
 
   # POST /todos
   def create
-    @customer = Customer.create!(customer_params)
+    puts customer_params[:password]
+    pass = ActionController::Parameters.new({
+      password: BCrypt::Password.create(customer_params[:password]).to_s
+    }).permit(:password)
+    puts pass
+    cust = customer_params.permit(:name, :username)
+    cust.merge!(pass)
+    puts cust 
+    @customer = Customer.create!(cust)
     json_response(@customer, :created)
   end
 
