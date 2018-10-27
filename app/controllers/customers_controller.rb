@@ -1,24 +1,18 @@
 class CustomersController < ApplicationController
   before_action :set_customer, only: [:show, :update, :destroy]
 
-  # GET /todos
   def index
     @customers = Customer.all
     json_response(@customers)
   end
 
-  # POST /todos
   def create
-    puts customer_params[:password]
-    pass = ActionController::Parameters.new({
-      password: BCrypt::Password.create(customer_params[:password]).to_s
-    }).permit(:password)
-    puts pass
-    cust = customer_params.permit(:name, :username)
-    cust.merge!(pass)
-    puts cust 
-    @customer = Customer.create!(cust)
-    json_response(@customer, :created)
+    if Customer.where("username = ?", customer_params[:username]).blank?
+      @customer = Customer.create!(customer_params)
+      json_response(@customer, :created)
+    else 
+      json_response("{error: \"Username is already taken\"}")
+    end
   end
 
   def show
@@ -40,6 +34,11 @@ class CustomersController < ApplicationController
   def customer_params
     # whitelist params
     params.permit(:username, :name, :password)
+    pass = ActionController::Parameters.new({
+      password: BCrypt::Password.create(params[:password]).to_s
+    }).permit(:password)
+    cust = params.permit(:name, :username)
+    cust.merge!(pass)
   end
 
   def set_customer
