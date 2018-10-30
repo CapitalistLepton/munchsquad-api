@@ -11,7 +11,7 @@ class CustomersController < ApplicationController
       @customer = Customer.create!(customer_params)
       json_response(@customer, :created)
     else 
-      json_response("{ \"error\": \"Username is already taken\"}")
+      json_response({ message: "Username is already taken" },  :unprocessable_entity)
     end
   end
 
